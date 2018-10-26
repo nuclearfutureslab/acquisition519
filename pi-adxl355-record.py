@@ -28,18 +28,32 @@ acc = adxl355.ADXL355(spi.xfer2)
 acc.start()
 
 acc.setrange(adxl355.SET_RANGE_2G)
-acc.setfilter(lpf = adxl355.SET_ODR_1000)
+rate = 62.5
+acc.setfilter(lpf = adxl355.SET_ODR_62_5)
 
 datalist = []
 t0 = time.time()
 tc = time.time()
 
-while (tc - t0) < mtime:
-    if(acc.hasnewdata()):
-        datalist.append(acc.get3V())
-    tc = time.time()
+msamples = mtime * rate
+mperiod = 1.0 / rate
 
-datalistnp = np.array(datalist)
-np.savetxt(outfilename, datalistnp, delimiter=",")
+datalist = []
+acc.emptyfifo()
+while (len(datalist) < msamples):
+    if acc.fifofull():
+        print("Fifo in ADXL355 was found full. Lost data.")
+    if acc.hasnewdata():
+        datalist += acc.get3Vfifo()
+
+rawdatalist = acc.convertlisttoRaw(datalist)
+gdatalist = acc.convertRawtog(acc.convertlisttoRaw(datalist))
+
+alldata = []
+for i in range(len(gdatalist)):
+    alldata.append([0, i * mperiod] + gdatalist[i])
+
+alldatanp = np.array(alldata)
+np.savetxt(outfilename, alldatanp, delimiter=",")
 
 
