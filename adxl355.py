@@ -255,13 +255,16 @@ class ADXL355():
 
     def convertlisttoRaw(self, data):
         """Convert a list of 'list' style samples into signed integers"""
-        res = [[0, 0, 0]] * len(data)
+        res = []
         for i in range(len(data)):
+            row3v = []
             for j in range(3):
                 low = (data[i][j][2] >> 4)
                 mid = (data[i][j][1] << 4)
                 high = (data[i][j][0] << 12)
-                res[i][j] = self.twocomp(low | mid | high)
+                value = 1 * self.twocomp(low | mid | high)
+                row3v.append(value)
+            res.append(row3v)
         return res
 
     def convertRawtog(self, data):
@@ -271,9 +274,11 @@ class ADXL355():
     
     def twocomp(self, value):
         if (0x80000 & value):
-            value = - (0x0100000 -value)
+            ret = - (0x0100000 - value)
             # from ADXL355_Acceleration_Data_Conversion function from EVAL-ADICUP360 repository
             # value = value | 0xFFF00000
-        return value
+        else:
+            ret = value
+        return ret
     
     
