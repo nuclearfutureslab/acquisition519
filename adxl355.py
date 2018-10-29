@@ -71,6 +71,18 @@ SET_ODR_15_625   = 0b1000
 SET_ODR_7_813    = 0b1001
 SET_ODR_3_906    = 0b1010
 
+ODR_TO_BIT = {4000: SET_ODR_4000,
+              2000: SET_ODR_2000,
+              1000: SET_ODR_1000,
+              500: SET_ODR_500,
+              250: SET_ODR_250,
+              125: SET_ODR_125,
+              62.5: SET_ODR_62_5,
+              31.25: SET_ODR_31_25,
+              15.625: SET_ODR_15_625,
+              7.813: SET_ODR_7_813,
+              3.906: SET_ODR_3_906}
+
 class ADXL355():
     def __init__(self, transfer_function):
         self.transfer = transfer_function

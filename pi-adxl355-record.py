@@ -5,13 +5,22 @@ import sys
 
 import adxl355
 
-# check for output filename
+# default values
+outfilename = 'output.csv'
+mtime = 1
+rate = 62.5
+
+# check for output filename, measurement length and rate
 if len(sys.argv) == 3:
     outfilename = sys.argv[1]
     mtime = float(sys.argv[2])
-else:
-    outfilename = 'output.csv'
-    mtime = 1
+elif len(sys.argv) == 4:
+    outfilename = sys.argv[1]
+    mtime = float(sys.argv[2])
+    rate = float(sys.argv[3])
+    if not rate in adxl355.ODR_TO_BIT:
+        print("Can only do the following data rates: {:s}".format(sorted(adxl355.ODR_TO_BIT.keys())))
+        exit(-1)
 
 # init spi interface
 spi = spidev.SpiDev()
@@ -24,11 +33,13 @@ spi.mode = 0b00
 
 # init adxl355
 acc = adxl355.ADXL355(spi.xfer2)
-
 acc.start()
 
 acc.setrange(adxl355.SET_RANGE_2G)
-rate = 62.5
+print("{:b}".format(adxl355.ODR_TO_BIT[rate]))
+acc.setfilter(lpf = adxl355.ODR_TO_BIT[rate])
+print("{:08b}".format(acc.read(adxl355.REG_FILTER)))
+
 acc.setfilter(lpf = adxl355.SET_ODR_62_5)
 
 datalist = []
