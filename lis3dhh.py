@@ -140,7 +140,7 @@ class LIS3DHH():
         return res
 
     def getX(self):
-        return float(self.getYRaw()) * self.factor
+        return float(self.getXRaw()) * self.factor
 
     def getYList(self):
         return([self.read(REG_Y_L), self.read(REG_Y_H)])
